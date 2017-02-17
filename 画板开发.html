@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>画板</title>
+	<style>
+		*{
+			padding: 0px;
+			margin: 0px;
+		}
+		.canvas{
+			display: block;
+			padding: 0px;
+			margin: 0px;
+			margin: 0 auto;
+			margin-top: 20px;
+		}
+		ul{
+			height: 35px;
+			width: 500px;
+			margin: 0 auto;
+			margin-top: 30px;
+		}
+		ul li{
+			list-style: none;
+			float: left;
+		}
+		ul li:nth-child(7){
+			float: right;
+		}
+		ul li button{
+			width: 50px;
+			height: 35px;
+			border-radius: 4px;
+			margin-left: 10px;
+			cursor: pointer;
+			font-size: 1.2em;
+			color: white;
+		}
+		li:nth-child(1){
+			height: 35px;
+			line-height: 35px;
+			font-size: 1.2em;
+		}
+		li:nth-child(2) button{
+			background-color: red;
+			border: 1px solid red;
+		}
+		li:nth-child(3) button{
+			background-color: yellow;
+			border: 1px solid yellow;
+			color: black;
+		}
+		li:nth-child(4) button{
+			background-color: blue;
+			border: 1px solid blue;
+		}
+		li:nth-child(5) button{
+			background-color: green;
+			border: 1px solid green;
+		}
+		li:nth-child(6) button{
+			background-color: black;
+			border: 1px solid black;
+		}
+		li:nth-child(7) button{
+			background-color: #b22c46;
+			border: 1px solid #b22c46;
+			margin-left: 0px;
+		}
+		div{
+			width: 500px;
+			height: 30px;
+			margin: 0 auto;
+			margin-top: 15px;
+			text-align: center;
+		}
+		input{
+			width: 300px;
+			vertical-align: middle;
+			margin-left: 20px;
+			margin-right: 20px;
+		}
+		small{
+			vertical-align: middle;
+			font-size: 1.2em;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="canvas" class="canvas" width="500" height="500"></canvas>
+	<ul>
+		<li>颜色选择: </li>
+		<li><button data-color="red">红色</button></li>
+		<li><button data-color="yellow">黄色</button></li>
+		<li><button data-color="blue">蓝色</button></li>
+		<li><button data-color="green">绿色</button></li>
+		<li><button data-color="black">黑色</button></li>
+		<li><button>清除</button></li>
+	</ul>
+	<div>
+		<small>调节笔画粗细:</small>
+		<input id="input" type="range" min="2" max="50" step="1">
+		<small id="number"></small>
+	</div>
+	<script>
+		window.onload = function  () {
+			function beginDraw () {
+				drawstroke();
+				getNumber();
+				getInitialColor();
+				for(var i = 0; i < btn.length - 1; i++)
+				{
+					btn[i].onclick = getColor;
+				}
+				input.onchange = getNumber;
+				canvas.onmousedown = down;
+				document.onmouseup = up;	
+			};
+			function drawstroke () {
+				context.strokeStyle = "#b22c46";
+				context.lineWidth = 5;
+				context.strokeRect(0, 0, 500, 500);
+				var value = [
+				{move: {x: 0, y: 0}, line: {x: 500, y: 500}},
+				{move: {x: 500, y: 0}, line: {x: 0, y: 500}},
+				{move: {x: 250, y: 0}, line: {x: 250, y: 500}},
+				{move: {x: 0, y: 250}, line: {x: 500, y: 250}}
+				];
+				for(var i = 0; i < value.length; i++)
+				{
+					context.beginPath();
+					context.moveTo(value[i].move.x, value[i].move.y);
+					context.lineTo(value[i].line.x, value[i].line.y);
+					context.closePath();
+					context.lineWidth = 1;
+					context.stroke();
+				}
+			};
+			function getInitialColor () {
+				for(var i = 0; i < btn.length - 1; i++)
+				{
+					btn[i].parentNode.style.marginTop = '0px';
+				}
+				btn[0].parentNode.style.marginTop = '-10px';
+				colorValue = btn[0].getAttribute("data-color");
+			};
+			function getColor () {
+				for(var i = 0; i < btn.length - 1; i++)
+				{
+					btn[i].parentNode.style.marginTop = '0px';
+				}
+				this.parentNode.style.marginTop = '-10px';
+				colorValue = this.getAttribute("data-color");
+			};
+			function getNumber () {
+				number.innerHTML = input.value;
+			};
+			function down () {
+				context.beginPath();
+				canvas.onmousemove = move;
+			};
+			function move (e) {
+				var X = e.pageX - (document.body.clientWidth - 500) / 2;
+				var Y = e.pageY - 20;
+				draw(X, Y);
+			};
+			function up () {
+				canvas.onmousemove = null;
+				context.closePath();
+			};
+			function draw (X, Y) {
+				context.lineTo(X, Y);
+				context.lineCap = 'round';
+				context.lineWidth = input.value;
+				context.strokeStyle = colorValue;
+				context.stroke();
+			};
+			function clear () {
+				context.clearRect(0, 0, 500, 500);
+				beginDraw();
+			};
+			var canvas = document.getElementById("canvas");
+			var context = canvas.getContext('2d');
+			var input = document.getElementById('input');
+			var number = document.getElementById("number");
+			var btn = document.getElementsByTagName('button');
+			var again = btn[btn.length - 1];
+			var colorValue;
+			beginDraw();
+			again.onclick = clear;
+		}
+	</script>
+</body>
+</html>
